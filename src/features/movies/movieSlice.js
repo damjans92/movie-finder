@@ -64,7 +64,13 @@ export const movieSlice = createSlice({
       state.isLoadingShows = false;
       state.shows = action.payload;
     },
+    [fetchMoviesAsync.rejected]: (state) => {
+      state.isLoadingShows = false;
+    },
     [fetchMovieOrShowDetailAsync.fulfilled]: (state, action) => {
+      return { ...state, selectMovieOrShow: action.payload };
+    },
+    [fetchMovieOrShowDetailAsync.rejected]: (state, action) => {
       return { ...state, selectMovieOrShow: action.payload };
     },
   },
