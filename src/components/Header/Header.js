@@ -5,6 +5,8 @@ import {
   fetchMoviesAsync,
   fetchShowsAsync,
 } from "../../features/movies/movieSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Header.scss";
 
 function Header() {
@@ -13,7 +15,7 @@ function Header() {
   const submitHandler = (e) => {
     e.preventDefault();
     if (term === "") {
-      return alert("Please enter search term");
+      return toast.error("Please enter search term");
     }
     dispatch(fetchMoviesAsync(term));
     dispatch(fetchShowsAsync(term));
