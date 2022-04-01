@@ -4,29 +4,43 @@ import { APIKey } from "../../common/apis/MovieApiKey";
 
 export const fetchMoviesAsync = createAsyncThunk(
   "movies/fetchMoviesAsync",
-  async (term) => {
-    const response = await movieApi.get(
-      `?apiKey=${APIKey}&s=${term}&type=movie`
-    );
-    return response.data;
+  async (term, thunkAPI) => {
+    try {
+      const response = await movieApi.get(
+        `?apiKey=${APIKey}&s=${term}&type=movie`
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 
 export const fetchShowsAsync = createAsyncThunk(
   "movies/fetchShowsAsync",
-  async (term) => {
-    const response = await movieApi.get(
-      `?apiKey=${APIKey}&s=${term}&type=series`
-    );
-    return response.data;
+  async (term, thunkAPI) => {
+    try {
+      const response = await movieApi.get(
+        `?apiKey=${APIKey}&s=${term}&type=series`
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 
 export const fetchMovieOrShowDetailAsync = createAsyncThunk(
   "movies/fetchMovieOrShowDetailAsync",
-  async (id) => {
-    const response = await movieApi.get(`?apiKey=${APIKey}&i=${id}&Plot=full`);
-    return response.data;
+  async (id, thunkAPI) => {
+    try {
+      const response = await movieApi.get(
+        `?apiKey=${APIKey}&i=${id}&Plot=full`
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 
@@ -36,6 +50,8 @@ const initialState = {
   selectMovieOrShow: {},
   isLoadingMovies: false,
   isLoadingShows: false,
+  isError: false,
+  errorMessage: "",
 };
 
 export const movieSlice = createSlice({
@@ -54,8 +70,10 @@ export const movieSlice = createSlice({
       state.isLoadingMovies = false;
       state.movies = action.payload;
     },
-    [fetchMoviesAsync.rejected]: (state) => {
+    [fetchMoviesAsync.rejected]: (state, action) => {
       state.isLoadingMovies = false;
+      state.isError = true;
+      state.errorMessage = action.payload;
     },
     [fetchShowsAsync.pending]: (state) => {
       state.isLoadingShows = true;
@@ -64,14 +82,18 @@ export const movieSlice = createSlice({
       state.isLoadingShows = false;
       state.shows = action.payload;
     },
-    [fetchMoviesAsync.rejected]: (state) => {
+    [fetchMoviesAsync.rejected]: (state, action) => {
       state.isLoadingShows = false;
+      state.isError = true;
+      state.errorMessage = action.payload;
     },
     [fetchMovieOrShowDetailAsync.fulfilled]: (state, action) => {
-      return { ...state, selectMovieOrShow: action.payload };
+      state.selectMovieOrShow = action.payload;
     },
     [fetchMovieOrShowDetailAsync.rejected]: (state, action) => {
-      return { ...state, selectMovieOrShow: action.payload };
+      state.selectMovieOrShow = action.payload;
+      state.isError = true;
+      state.errorMessage = action.payload;
     },
   },
 });

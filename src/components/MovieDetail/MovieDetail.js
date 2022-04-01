@@ -5,21 +5,28 @@ import {
   fetchMovieOrShowDetailAsync,
   removeSelectedMovieOrShow,
 } from "../../features/movies/movieSlice";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./MovieDetails.scss";
 
 function MovieDetail() {
   const { imdbID } = useParams();
   const dispatch = useDispatch();
   const data = useSelector((state) => state.movies.selectMovieOrShow);
+  const isError = useSelector((state) => state.movies.isError);
+  const errorMsg = useSelector((state) => state.movies.errorMessage);
 
   useEffect(() => {
+    if (isError) {
+      toast.error(errorMsg);
+    }
+
     dispatch(fetchMovieOrShowDetailAsync(imdbID));
 
     return () => {
       dispatch(removeSelectedMovieOrShow());
     };
-  }, [dispatch, imdbID]);
+  }, [dispatch, imdbID, isError, errorMsg]);
 
   return (
     <div className="movie-section">
